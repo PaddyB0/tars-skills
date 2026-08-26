@@ -1,0 +1,4 @@
+interface:
+  display_name: "Diagnose Software Problems"
+  short_description: "Build a tight loop and prove the root cause"
+  default_prompt: "Use $diagnose to investigate this failure and report the proven root cause without implementing a fix."

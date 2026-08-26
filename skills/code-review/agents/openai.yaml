@@ -1,0 +1,4 @@
+interface:
+  display_name: "TARS Code Review"
+  short_description: "Review changes against contract, spec, and behavior"
+  default_prompt: "Use $code-review to review the current changes against the TARS contract, originating spec, and runtime behavior."

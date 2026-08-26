@@ -1,0 +1,4 @@
+interface:
+  display_name: "OS Audit"
+  short_description: "Audit TAR-OS drift, freshness, and context health"
+  default_prompt: "Use $os-audit to audit this project for routing drift, stale knowledge, bloat, and silent failures."

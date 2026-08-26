@@ -1,0 +1,4 @@
+interface:
+  display_name: "TARS UI"
+  short_description: "Shape, build, review, and harden TAR-OS UI"
+  default_prompt: "Use $tars-ui to improve this TAR-OS interface through the complete UI workflow."

@@ -1,0 +1,26 @@
+{
+  "skill_name": "client-setup",
+  "evals": [
+    {
+      "id": 0,
+      "name": "mode-a-new-client-with-contacts",
+      "prompt": "I'm onboarding a new client, Northwind Traders, in TARS. It's a Premium Success engagement for Q3 2026 — 20 hours contracted, July 1 through September 30. Salesforce has them as account 001NW000000NORTHAA with industry Wholesale Distribution and billing address 500 Trade St, Boston, MA. Two contacts on the account: Maria Chen (VP Finance, maria.chen@northwind.example) and Tom Reilly (Controller, tom.reilly@northwind.example). Gong says Maria is the economic decision maker driving the deal and Tom is the hands-on champion who'll do the building. Set the whole thing up.",
+      "expected_output": "All three layers created: CRM company note (crm_company, EST timezone from Boston, sf.Url built from account id, ContactName lists both), project note 'Northwind Traders - PS Q3 2026' (Premium Success, 🔵 active, 11-25 hrs / 20, cowork_client set), two contact pages (crm_contacts / tag crm_contact) with Maria=Decision Maker, Tom=Champion and Company backlinks, and a Cowork/clients/Northwind Traders/ folder with the bridge pointer. All join keys resolve both ways; no empty-string dates.",
+      "files": []
+    },
+    {
+      "id": 1,
+      "name": "mode-b-renewal-existing-client",
+      "prompt": "Acme Corp is renewing — set up their Premium Success Q3 2026 engagement in TARS. Same scope as last quarter, 20 hours, July 1 through September 30.",
+      "expected_output": "New project note 'Acme Corp - PS Q3 2026' (🔵 active). Prior project 'Acme Corp - PS Q2 2026' flipped to 🟢 complete with Completed_At set. Company note Project pointer repointed to the Q3 engagement. NO second company note and NO second work folder created — the existing ones are reused. Folder CLAUDE.md bridge pointer updated to name the Q3 project. Exactly one active project remains for Acme.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "mode-a-salesforce-dry-no-contacts",
+      "prompt": "Set up a new client in TARS: Globex Industries. It's a CS Hours block — a forecast module build — roughly 10 hours, starting now through the end of August. I don't have their contacts yet, and they're not in Salesforce under that name.",
+      "expected_output": "Company note created but thin and honest: Industry list empty, sf.Url empty, Timezone omitted — nothing fabricated. Project note 'Globex Industries - Forecast Module' with Type CS Hours and ScopeCategory 0-10 hrs. Cowork folder created. NO contact pages invented. Join keys wired both ways. No empty-string dates anywhere.",
+      "files": []
+    }
+  ]
+}

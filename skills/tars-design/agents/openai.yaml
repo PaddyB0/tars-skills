@@ -1,0 +1,4 @@
+interface:
+  display_name: "TARS Design"
+  short_description: "Apply the canonical TARS visual system"
+  default_prompt: "Use $tars-design to design this TARS interface using the canonical visual system."

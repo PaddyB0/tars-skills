@@ -1,0 +1,6 @@
+interface:
+  display_name: "Decision Grill"
+  short_description: "Resolve a decision tree one question at a time"
+  default_prompt: "Use $grill to interview me one decision at a time until this plan is ready to act on."
+policy:
+  allow_implicit_invocation: false

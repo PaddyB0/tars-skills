@@ -1,0 +1,7 @@
+{
+  "meeting_knowledge_cutover": "2026-07-01",
+  "default_active_client_stale_days": 21,
+  "clients": {
+    "Example Client": {"cadence": "on-demand", "stale_days": null}
+  }
+}

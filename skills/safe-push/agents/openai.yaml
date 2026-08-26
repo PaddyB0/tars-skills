@@ -1,0 +1,4 @@
+interface:
+  display_name: "Safe Push"
+  short_description: "Validate and publish an exact reviewed TARS commit"
+  default_prompt: "Use $safe-push to validate and safely publish the current committed TARS changes through the repository gate."

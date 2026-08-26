@@ -1,0 +1,4 @@
+interface:
+  display_name: "Test-Driven Development"
+  short_description: "Implement behavior in red-green-refactor slices"
+  default_prompt: "Use $tdd to implement this authorized change test-first through the highest practical public seam."
