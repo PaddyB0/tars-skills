@@ -28,12 +28,15 @@ except Exception:
 # ---------- schema contract (source of truth: Administrator/FileClasses) ----------
 ENUMS = {
     "task": {
-        "Status": {"⚪ TO DO", "🔵 IN PROGRESS", "🟢 COMPLETE"},
+        "Status": {"⚫ BACKLOG", "⚪ TO DO", "🔵 IN PROGRESS",
+                   "🟣 HUMAN REVIEW", "🟠 REWORK", "🟢 MERGING",
+                   "🟢 COMPLETE", "⚫ CANCELED", "⚫ DUPLICATE"},
         "Priority": {"Low", "Medium", "High", "Critical"},
         "Phase": {"Kick-Off", "Change Planning", "Workspace Configuration",
                   "Model Builds", "Dashboard Design", "Training + Enablement"},
         "Visibility": {"client facing", "internal"},
         "Executor": {"Patrick", "Code-Mac", "Code-Win", "Code-Work", "Cowork"},
+        "Workflow": {"dr-recon", "dr-lut-diagnose"},
         "Repeat": {"daily", "weekly", "monthly", "yearly"},
         "ScheduleMode": {"flexible", "fixed", "manual"},
         "Energy": {"deep", "shallow", "any"},
@@ -930,7 +933,8 @@ def main():
     if os.path.isdir(clients_root):
         folders = sorted(
             d for d in os.listdir(clients_root)
-            if os.path.isdir(os.path.join(clients_root, d)) and d != "_template"
+            if os.path.isdir(os.path.join(clients_root, d))
+            and d != "_template" and not d.startswith(".")
         )
         folder_set = set(folders)
         for rel, cw in cowork_refs:
@@ -1002,7 +1006,8 @@ def main():
         if p5_subject_is_delivery(c["subject"]) and 0 < len(c["clients"]) <= BULK_THRESHOLD:
             touched.update((cl, c["day"]) for cl in c["clients"])
     live_clients = {d for d in os.listdir(clients_root)
-                    if os.path.isdir(os.path.join(clients_root, d))} \
+                    if os.path.isdir(os.path.join(clients_root, d))
+                    and not d.startswith(".")} \
         if os.path.isdir(clients_root) else set()
     for client, day in sorted(touched):
         if client not in live_clients:

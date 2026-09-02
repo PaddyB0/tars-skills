@@ -32,7 +32,10 @@ tests, references, evals, and OpenAI agent metadata where present.
 
 - `tars-design` — apply the canonical TARS visual system.
 - `tars-ui` — implement and verify TAR-OS interface work.
-- `planning-template` — design a build-ready Datarails planning-template specification.
+- `planning-template` — design a build-ready Datarails planning-template
+  specification, with a deterministic workbook inventory pass.
+- `excel-design` — the canonical `.xlsx` visual contract and its deterministic
+  workbook linter.
 
 ## Repository boundary
 
@@ -54,9 +57,16 @@ Copy an individual directory from `skills/` into the skill directory supported b
 your agent runtime. Keep the complete directory so scripts, tests, references,
 evals, and agent metadata stay with `SKILL.md`.
 
-The `lint` scheduler integration tests read the live TARS FileClass and template
-contracts. Run that suite from a TARS checkout; the other bundled unit tests can
-run directly from this repository.
+Every skill directory that ships code also ships its tests. From the repository
+root:
+
+```bash
+for d in skills/*/; do [ -d "$d/tests" ] && (cd "$d" && python -m pytest tests -q); done
+```
+
+Two suites have external requirements. `excel-design` and `planning-template`
+need `openpyxl`. The `lint` scheduler contract tests read the live TARS FileClass
+and template sources, so they skip outside a TARS checkout and run inside one.
 
 ## Privacy and licensing
 

@@ -10,11 +10,22 @@ from pathlib import Path
 
 
 LINTER = Path(__file__).parents[1] / "lint.py"
+# These integration tests read the live TARS FileClass and template contracts,
+# so they only run from a TARS checkout. Outside one, skip instead of failing
+# collection for the rest of the suite.
 ROOT = next(
-    parent
-    for parent in Path(__file__).resolve().parents
-    if (parent / "System" / "Agent Runtime" / "runtime-manifest.json").is_file()
+    (
+        parent
+        for parent in Path(__file__).resolve().parents
+        if (parent / "System" / "Agent Runtime" / "runtime-manifest.json").is_file()
+    ),
+    None,
 )
+if ROOT is None:
+    raise unittest.SkipTest(
+        "TARS checkout not found; scheduler contract tests need the live "
+        "FileClass and template sources"
+    )
 
 
 def load_linter():
