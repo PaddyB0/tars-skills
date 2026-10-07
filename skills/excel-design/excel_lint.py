@@ -2,7 +2,7 @@
 """Deterministic design lint for delivered .xlsx reports.
 
 Enforces the testable subset of the excel-design contract
-(references/DESIGN.md). Rules XL1-XL16. Exit codes mirror the Impeccable
+(references/DESIGN.md). Rules XL1-XL18. Exit codes mirror the Impeccable
 runner: 0 clean, 2 findings exist, 1 the file could not be checked.
 
 XL11 and XL12 are heuristics and say so in their own output.
@@ -17,11 +17,12 @@ import sys
 from pathlib import Path
 
 from openpyxl import load_workbook
+from openpyxl.utils import get_column_letter, range_boundaries
 
 DEFAULT_TAB_NAME = re.compile(r"^Sheet\d*$", re.IGNORECASE)
 PURE_BLACK = "FF000000"
 MAX_FACES = 2
-MAX_SIZES = 5
+MAX_SIZES = 4
 # The type contract is one sans + its mono sibling (references/DESIGN.md §1).
 # Excel has no fallback stack, so a workbook must stay inside ONE pair - mixing
 # Aptos with Consolas is a family clash, not a valid two-face budget.
@@ -229,14 +230,29 @@ def _check_freeze(ws) -> list[dict]:  # XL8
     return []
 
 
+def _cursor_selection(view):
+    """The selection in the pane holding the cursor.
+
+    A frozen sheet stores one selection per pane, and Excel writes the real
+    cursor in the active pane's entry. On a two-axis freeze the first entry is
+    topRight, whose cells start past column A, so it can never read A1. An
+    absent pane attribute or activePane means topLeft.
+    """
+    active_pane = (view.pane.activePane if view.pane is not None else None) or "topLeft"
+    for selection in view.selection:
+        if (selection.pane or "topLeft") == active_pane:
+            return selection
+    return view.selection[0]
+
+
 def _check_parked(ws) -> list[dict]:  # XL9
     findings = []
     zoom = ws.sheet_view.zoomScale
     if zoom is not None and zoom != 100:
         findings.append(_finding("XL9", ws.title, f"zoom is {zoom}%; park at 100%"))
-    selections = ws.sheet_view.selection
-    if selections:
-        active = selections[0].activeCell or selections[0].sqref
+    if ws.sheet_view.selection:
+        selection = _cursor_selection(ws.sheet_view)
+        active = selection.activeCell or selection.sqref
         if active is not None and str(active).split(":")[0] != "A1":
             findings.append(
                 _finding("XL9", ws.title, f"cursor parked at {active}; park at A1")
@@ -339,12 +355,20 @@ def _has_four_borders(cell) -> bool:
     )
 
 
+def _is_input_box(cell) -> bool:
+    """DESIGN.md §4 input cell: a dashed box. One side may instead be a header or
+    total rule that owns that edge, so three dashed sides are enough."""
+    border = cell.border
+    sides = (border.top, border.bottom, border.left, border.right)
+    return sum(1 for side in sides if side is not None and side.style == "dashed") >= 3
+
+
 def _check_border_grid(ws) -> list[dict]:  # XL12 (heuristic)
     populated = 0
     boxed = 0
     for cell in _iter_value_cells(ws):
         populated += 1
-        if _has_four_borders(cell):
+        if _has_four_borders(cell) and not _is_input_box(cell):
             boxed += 1
     if boxed >= BOXED_MIN_CELLS and populated and boxed / populated >= BOXED_MIN_SHARE:
         return [
@@ -356,6 +380,126 @@ def _check_border_grid(ws) -> list[dict]:  # XL12 (heuristic)
             )
         ]
     return []
+
+
+# XL18: Excel sizes columns in digits of the workbook's FIRST font record (openpyxl
+# leaves it Calibri 11, whatever the Normal style says). Max digit width and padding
+# in px at 96 dpi, measured in Excel 16 on 2026-10-07. Calibrated against PDF export:
+# the estimate reads up to 0.35pt below the printed size, and never above it.
+MIN_PRINTED_PT = 7.0
+DIGIT_WIDTH_PX = {
+    "Aptos Display": {8: (5.33, 3.33), 9: (6.0, 4.67), 10: (6.67, 4.67), 11: (8.0, 4.67), 12: (8.67, 6.0)},
+    "Aptos": {8: (6.0, 4.67), 9: (6.67, 4.67), 10: (7.33, 4.67), 11: (8.0, 4.67), 12: (8.67, 6.0)},
+    "Aptos Narrow": {8: (5.33, 3.33), 9: (6.0, 4.67), 10: (6.67, 4.67), 11: (7.33, 4.67), 12: (8.0, 4.67)},
+    "Calibri": {8: (5.33, 3.33), 9: (6.0, 4.67), 10: (6.67, 4.67), 11: (7.33, 4.67), 12: (8.0, 4.67)},
+}
+PAPER_INCHES = {1: (8.5, 11.0), 3: (11.0, 17.0), 5: (8.5, 14.0), 9: (8.27, 11.69)}  # short, long side
+
+
+def _print_scale(ws, default_font) -> float:
+    """Scale Excel applies at print: fixed, or the tighter of fit-to-width and fit-to-height.
+    An absent fitToWidth or fitToHeight means one page, as Excel reads it."""
+    setup = ws.page_setup
+    props = ws.sheet_properties.pageSetUpPr
+    if not (props is not None and props.fitToPage):
+        return (setup.scale or 100) / 100
+    pages_wide = 1 if setup.fitToWidth is None else int(setup.fitToWidth)
+    pages_tall = 1 if setup.fitToHeight is None else int(setup.fitToHeight)
+    c0, r0, c1, r1 = _print_bounds(ws)
+    short, long_ = PAPER_INCHES.get(int(setup.paperSize or 1), PAPER_INCHES[1])
+    landscape = setup.orientation == "landscape"
+    paper_w, paper_h = (long_, short) if landscape else (short, long_)
+    margins = ws.page_margins
+    scale = 1.0
+    if pages_wide >= 1:
+        mdw, pad = DIGIT_WIDTH_PX.get(default_font.name, {}).get(int(default_font.sz or 11), (7.33, 4.67))
+        total_px = 0.0
+        for col in range(c0, c1 + 1):
+            dim = ws.column_dimensions.get(get_column_letter(col))
+            width = dim.width if dim is not None and dim.width else 8.43
+            total_px += width * mdw + pad
+        printable_w = (paper_w - margins.left - margins.right) * 72 * pages_wide
+        if total_px:
+            scale = min(scale, printable_w / (total_px * 0.75))
+    if pages_tall >= 1:
+        default_h = ws.sheet_format.defaultRowHeight or 15
+        total_h = sum(
+            (ws.row_dimensions[r].height if r in ws.row_dimensions and ws.row_dimensions[r].height else default_h)
+            for r in range(r0, r1 + 1)
+        )
+        printable_h = (paper_h - margins.top - margins.bottom) * 72 * pages_tall
+        if total_h:
+            scale = min(scale, printable_h / total_h)
+    return scale
+
+
+def _print_bounds(ws) -> tuple[int, int, int, int]:
+    area = ws.print_area
+    if isinstance(area, (list, tuple)):
+        area = area[0] if area else None
+    ref = area.split("!")[-1].replace("$", "") if area else ws.dimensions
+    return range_boundaries(ref)
+
+
+def _check_printed_size(ws, default_font) -> list[dict]:  # XL18
+    """Any printed line - numbers, labels, footnotes - below the floor once the page scales."""
+    c0, r0, c1, r1 = _print_bounds(ws)
+    sizes = [
+        float(cell.font.sz or default_font.sz or 11)
+        for row in ws.iter_rows(min_row=r0, max_row=r1, min_col=c0, max_col=c1)
+        for cell in row
+        if cell.value is not None and cell.value != ""
+    ]
+    if not sizes:
+        return []
+    scale = _print_scale(ws, default_font)
+    printed = min(sizes) * scale
+    if printed >= MIN_PRINTED_PT:
+        return []
+    return [
+        _finding(
+            "XL18",
+            ws.title,
+            f"smallest text prints at about {printed:.1f}pt ({min(sizes):g}pt at {scale:.0%} scale); "
+            f"at least {MIN_PRINTED_PT:g}pt - narrow or drop columns, raise small text to body size, "
+            "or use larger paper",
+        )
+    ]
+
+
+def _side_key(side) -> tuple | None:
+    if side is None or not side.style:
+        return None
+    color = side.color.rgb if side.color is not None and side.color.type == "rgb" else None
+    return (side.style, color)
+
+
+def _check_shared_edges(ws) -> list[dict]:  # XL17
+    """Excel draws one line per shared edge. Two cells that each declare it differently
+    render whichever wins, so a status box or total rule shows the neighbour's color."""
+    hits = []
+    cells = ws._cells  # noqa: SLF001 - includes border-only cells that hold no value
+    for (row, col), cell in cells.items():
+        pairs = (
+            (cell.border.right, cells.get((row, col + 1)), "left"),
+            (cell.border.bottom, cells.get((row + 1, col)), "top"),
+        )
+        for own, neighbour, their_side in pairs:
+            mine = _side_key(own)
+            theirs = _side_key(getattr(neighbour.border, their_side)) if neighbour is not None else None
+            if mine and theirs and mine != theirs:
+                hits.append(cell.coordinate)
+                break
+    if not hits:
+        return []
+    return [
+        _finding(
+            "XL17",
+            ws.title,
+            f"conflicting shared border edge at {_fmt_examples(sorted(set(hits)))}; "
+            "declare each shared edge on one cell only",
+        )
+    ]
 
 
 def lint_workbook(path: Path) -> list[dict]:
@@ -378,6 +522,8 @@ def lint_workbook(path: Path) -> list[dict]:
         findings.extend(_check_proportional_figures(ws))
         findings.extend(_check_bloat(ws))
         findings.extend(_check_border_grid(ws))
+        findings.extend(_check_shared_edges(ws))
+        findings.extend(_check_printed_size(ws, wb._fonts[0]))  # noqa: SLF001 - the default font record
     return findings
 
 

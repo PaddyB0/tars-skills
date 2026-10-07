@@ -1,6 +1,6 @@
 ---
 name: excel-design
-description: Apply the canonical Excel report design contract - the TARS design system translated to .xlsx, with Impeccable-style deterministic linting. Tokens for typography, color, number formats, layout and charts, plus the TARS component set (KPI readout, segmented gauge, status badge, property row, table, card). Use for any client-facing or internal .xlsx report, "make this workbook look good", "standardize this Excel report", or before delivering any generated spreadsheet.
+description: Apply the canonical Excel report design contract - the TARS design system translated to .xlsx, with Impeccable-style deterministic linting. Tokens for typography, color, number formats, layout and charts, three styles (Instrument, Boardroom, Ledger), a client brand override, plus the TARS component set (KPI readout, segmented gauge, status badge, property row, table, card). Use for any client-facing or internal .xlsx report, "make this workbook look good", "standardize this Excel report", or before delivering any generated spreadsheet.
 ---
 
 # Excel design
@@ -23,12 +23,12 @@ TARS vault. Items 1, 2 and 4 are vault-relative: apply them when the working
 directory is inside the TARS vault, and skip them silently when it is not.
 `references/DESIGN.md` ships beside this file and always applies.
 
-1. Root `CLAUDE.md` (schema, Cowork boundaries — client work product lives
-   under `Cowork/clients/<X>/outputs/`). *Vault only.*
+1. Root `CLAUDE.md` and the `vault-schema` skill (schema, Cowork boundaries —
+   client work product lives under `Cowork/clients/<X>/outputs/`). *Vault only.*
 2. An explicit client formatting requirement stated by the client or recorded
-   in `Cowork/clients/<X>/MEMORY.md` (including an `Excel accent: #RRGGBB`
-   brand override — accent token only). *Vault only; outside the vault, take a
-   brand override from the user directly.*
+   in `Cowork/clients/<X>/MEMORY.md`, including an `Excel style:` pin (§9) and
+   an `Excel brand:` override of at most three tokens (§10). *Vault only; outside
+   the vault, take the style and override from the user directly.*
 3. `references/DESIGN.md` — the contract, including its derived token table.
    **Always applies.** It is self-contained: every token is a literal hex, so
    the skill needs nothing else to produce a correct workbook.
@@ -42,7 +42,8 @@ work — item 3 alone is sufficient. Say which items you could not consult only
 if the user asks about a choice one of them would have decided.
 
 A generic aesthetic idea never overrides a higher authority. Do not invent a
-new visual world per report; sameness across deliverables is the point.
+new visual world per report. Pick one of the three styles; sameness within a
+style is the point.
 
 ## Workflow
 
@@ -50,19 +51,24 @@ new visual world per report; sameness across deliverables is the point.
 
 Before writing cells, state in one short block: audience, the one question the
 report answers, the hero numbers, and the tab story (summary → report → data →
-reference). A report with no hierarchy decision gets decorated, not designed.
+reference), and the style (§9): Instrument by default, Boardroom for a board
+pack or executive one-pager, Ledger for a dense close pack, model or a
+workbook that is mostly period sheets. Every style has period widths, so a
+monthly tab never forces a style change. A report
+with no hierarchy decision gets decorated, not designed.
 
 ### 2. Build against tokens and components
 
 Read `references/DESIGN.md`. Resolve two things before writing cells:
 
-- **Faces** — **Aptos Display** for all text *and every numeral* (tabular
-  figures, plain zero, tightest Aptos cut); **Aptos Mono** for instrument
-  labels only. Aptos is an M365 cloud font: if the recipient is on pre-2024
+- **Faces and sizes**: the style's pair and scale from §9. The sans carries
+  all text *and every numeral*, and the mono carries instrument labels and the
+  gauge only. Aptos is an M365 cloud font: if the recipient is on pre-2024
   Office, switch to the **Calibri + Consolas** fallback pair. Aptos Display,
-  Aptos and Aptos Narrow are separate Excel families — stay inside one pair.
+  Aptos and Aptos Narrow are separate Excel families, so stay inside one pair.
   Never Inter: its digits are proportional and cannot align.
-- **Accent** — client override if declared, else `#202B8A`.
+- **Colors**: the §2 palette, with any §10 brand override applied. Run the
+  §10 checks on override tokens. A failing token keeps its default.
 
 Then apply the tokens as literal formats and assemble the report from the
 **§4 component set** — section label, KPI readout, segmented gauge, status
@@ -70,7 +76,7 @@ badge, property row, table, card. Do not hand-roll a new treatment for
 something the component set already covers.
 
 Two rules break most often, so check them explicitly: **numerals go in a
-tabular-figure face** (Aptos Display, never Inter — see §1 for the measurements), and
+tabular-figure face** (the style's sans, never Inter — see §1 for the measurements), and
 **progress is a segmented gauge, never a data bar**.
 
 ### 3. Audit
@@ -81,7 +87,7 @@ Run the deterministic lint on the produced file:
 python "<skill-dir>/excel_lint.py" "<path/to/report.xlsx>"
 ```
 
-Exit 0 = clean, 2 = findings, 1 = unreadable. Rules XL1-XL16; XL11 and XL12
+Exit 0 = clean, 2 = findings, 1 = unreadable. Rules XL1-XL18; XL11 and XL12
 label themselves heuristics. Fix true findings before recording an exception.
 Exceptions are per-rule, per-sheet, with a stated reason (a raw data-dump tab
 may waive XL11); never waive a whole workbook.
@@ -121,6 +127,7 @@ skill directory). A rule change edits both together, tests first.
 
 If `.obsidian/design-system/tokens/` changes upstream, re-derive the §2 table
 rather than eyeballing it: preserve each token's hue and saturation, re-anchor
-lightness for white, and hold every text token at >= 4.5:1 contrast with
+lightness for white, and hold every text token at >= 4.5:1 contrast on white,
+`band` and `accent-fill`, with
 `positive`/`negative` separated >= 1.5:1 in grayscale. Never edit the design
 system itself from here — it is `.obsidian/`, off limits per root `CLAUDE.md`.

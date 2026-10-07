@@ -41,8 +41,8 @@ skills.
 - `tars-ui` — implement and verify TAR-OS interface work.
 - `planning-template` — design a build-ready Datarails planning-template
   specification, with a deterministic workbook inventory pass.
-- `excel-design` — the canonical `.xlsx` visual contract and its deterministic
-  workbook linter.
+- `excel-design` — the canonical `.xlsx` visual contract (three styles, a
+  client brand override) and its deterministic workbook linter.
 
 ## Included commands
 
