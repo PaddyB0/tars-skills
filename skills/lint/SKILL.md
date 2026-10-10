@@ -1,12 +1,11 @@
 ---
 name: lint
-description: Unified vault lint — three passes (schema S1–S4 · propagation P1–P8 · graph G1–G7) over every TARS note and the wiki layer. Supersedes /vault-lint and Cowork /lint. Run after any batch of writes and before every handoff. Use --fix for mechanical fixes only. Use when the user says "lint the vault", "run lint", "check the vault".
+description: Unified vault lint — four passes (schema S1–S4 · propagation P1–P8 · graph G1–G7 · agent surface AS1–AS7) over every TARS note and the wiki layer. Run after any batch of writes and before every handoff. Use --fix for mechanical fixes only. Use when the user says "lint the vault", "run lint", "check the vault".
 ---
 
 # /lint [--fix]
 
-One lint, three passes. Supersedes `/vault-lint` (schema only) and the Cowork `/lint`
-(knowledge only). Full contract: [[TARS Unified OS - Schema]] § 6. A note with a wrong
+One lint, three passes. Full contract: [[TARS Unified OS - Schema]] § 6. A note with a wrong
 enum, malformed key, or empty-string date silently disappears from every Base view —
 this catches that, plus propagation gaps (un-ingested meetings, stale dossiers,
 renewal orphans) and graph health (broken links, orphans, provenance).
@@ -25,7 +24,7 @@ PYTHONIOENCODING=utf-8 python .claude/skills/lint/lint.py
   cp1252 and crashes on the emoji enum values.
 - The script's schema constants are re-derived from `Administrator/FileClasses/*.md`
   — **that folder is the source of truth.** If a fileClass changes, update `lint.py`'s
-  `ENUMS` / `DATE_FIELDS` / `NAME_RE`.
+  `DATE_FIELDS` / `NAME_RE`; `ENUMS` is derived from `schema.json`.
 
 ## Pass 1 — Schema (S1–S4, scripted)
 Frontmatter present/parseable · `fileClass` correct for the folder · no duplicate/
@@ -70,6 +69,13 @@ Reader-driven (judgment):
   auto-fix**.
 - **G6** dossier `## People` ≠ frontmatter `ContactName` (mirror drift) → reconcile.
 - **G7** synthesized claim with no source link (provenance rule) → add the source.
+
+## Pass 4 — Agent surface (AS1–AS7, scripted)
+`python scripts/agent_surface_lint.py` checks settings JSON, hook wiring, skill and
+command frontmatter, the always-loaded word ceiling, and **AS7** schema drift: the
+`/vault-schema` field tables, `Administrator/FileClasses/`, and `lint.py` `ENUMS` (derived from `schema.json`)
+must agree (it runs `python scripts/build_vault_schema.py --check`). The check
+contract lives in that script's `--help`.
 
 ## --fix scope (mechanical only)
 Empty-string dates → omitted (scripted). P8 renewal re-point and P4 contact-fill are

@@ -17,10 +17,11 @@ evaluating candidates.
 
 The entire run is read-only:
 
+- Root CLAUDE.md hard rules 1 and 3 apply in full (protected paths and the plugin data file; Git is never a transport and never mutated).
 - Do not create or update knowledge pages, the knowledge index, `log.md`, client
   memory, notes, tasks, or any other file.
-- Do not invoke `/distill`, `/ingest`, `/handoff`, Git mutation, or an external
-  write-capable connector.
+- Do not invoke `/distill`, `/ingest`, `/handoff`, or an external write-capable
+  connector.
 - Do not copy raw client data, client names, people, account or tenant IDs,
   workbook names, URLs, credentials, or client-specific figures into a proposed
   reusable draft.

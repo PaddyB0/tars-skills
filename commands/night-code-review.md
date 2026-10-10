@@ -16,18 +16,17 @@ skill; it does not replace the skill's Contract, Spec, and Behaviour review.
 
 The repository and every external system remain read-only:
 
+- Root CLAUDE.md hard rules 1 and 3 apply in full (protected paths and the plugin data file; Git is never a transport and never mutated).
 - Do not edit, create, move, rename, delete, format, generate, or auto-fix
   repository files. Automatically cleaned test fixtures under the OS temporary
   directory are the only permitted filesystem writes.
-- Do not stage, commit, stash, switch branches, pull, fetch, push, open a PR, post
-  GitHub comments, or otherwise mutate local or remote Git state.
+- Do not open a PR or post GitHub comments.
 - Do not install packages or update lockfiles.
 - Do not run a test, linter, formatter, build, or typechecker unless it is
   demonstrably non-mutating. Disable bytecode/cache output or route it to the OS
   temporary directory. If that cannot be done confidently, skip it and report
   the validation gap.
 - Do not call external write-capable connectors or deployment tools.
-- Do not read `.obsidian/plugins/tars-os/data.json`; it contains a real API key.
 - If a suspected credential appears in a reviewed diff, report only its category
   and tight location. Never reproduce the value in the review.
 - Do not review or expose client work merely because it is dirty. Client content

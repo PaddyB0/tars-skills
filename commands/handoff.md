@@ -9,6 +9,10 @@ command is report-only: it does not commit or push, and it does not infer author
 to create a handoff note or update PM state. Obsidian Sync is the vault file
 transport; preserved repositories remain unchanged local evidence.
 
+`python scripts/tars_state.py handoff` prints the mechanical draft of the
+handoff note from this machine's runs; `--write` creates the `Handoffs/` note.
+`/handoff` only reports unless the user separately asks to write.
+
 ## Steps
 1. **Identify this machine.** Read `Cowork/.ai-os-machine` for the Executor label
    (uname fallback).

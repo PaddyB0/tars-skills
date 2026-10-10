@@ -91,7 +91,7 @@ Read `.claude/skills/code-review/SKILL.md` completely and perform its Contract, 
 ## Phase 1 constraints
 
 - Keep Impeccable hooks disabled.
-- Do not add standalone command aliases.
+- Do not run the upstream `pin` script; the `/ui-*` wrappers in source are the only aliases.
 - Do not make detector output CI-blocking.
 - Do not enable Impeccable Live mode.
 - Do not allow Impeccable to replace TARS product or visual authority.

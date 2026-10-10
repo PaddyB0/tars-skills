@@ -15,7 +15,7 @@ change. Before the first action, state the task contract:
 objective, authoritative sources, read/write/external scope, risk class,
 acceptance checks, budget, tier/routing reason, and stop conditions. If material
 requirements are unresolved, stop for direction rather than choosing a broader
-workflow.
+workflow. The tier/routing reason names the model and effort being dispatched.
 
 ## Non-negotiable boundaries
 
@@ -38,6 +38,10 @@ workflow.
   independently scoped contracts and a coordinator under the standards' shared
   budget. For durable, isolated parallel worktrees, follow
   [[FirstMate Integration Assessment]] instead.
+- The task contract handed to a dispatched worker is a brief produced by
+  `scripts/brief.py new` (Patrick's verbatim intent separated from the build
+  spec). A brief that `python scripts/brief.py check <path>` rejects is not
+  dispatched.
 
 ## Presets
 
@@ -59,6 +63,20 @@ workflow.
 local change. Choose the narrowest preset that supplies the needed evidence;
 adding stages without an acceptance reason is overhead, not safety.
 
+## Model routing
+
+[[AI Agent Workflow Standards#Appendix C — Claude Code mapping (2026-10-07)]]
+owns the routing rules and [[Model Registry]] owns which model fills each tier.
+
+| Stage | Tier |
+|---|---|
+| `scout` | T1; T1+ when the read needs judgment beyond a fixed plan; T3 when the question is architectural |
+| `plan` | T2 for R1; T3 for R2 or any T3 trigger |
+| `build`, `document` | T2 |
+| `quality`, `test` | T0, run by T1; T1+ after the first failed T1 repair loop |
+| `review` | T2 and never the builder; T3 for high-consequence R1 or R2 |
+| verify, report | The coordinator (T3 in an interactive session) |
+
 ## Stage rules
 
 ### Scout and plan
@@ -67,7 +85,8 @@ Read the smallest authoritative surface and return a concise report in chat by
 default. Do not create a vault note, change a task, or write a plan artifact
 unless the task contract explicitly includes its path. A material architecture,
 schema, privacy, security, migration, or hard-diagnosis decision requires the
-read-only `tars_high_assurance` T3 role before any mutation.
+read-only T3 seat before any mutation: Fable 5.1 on Claude Code (Appendix C of
+[[AI Agent Workflow Standards]]), the `tars_high_assurance` role on Codex.
 
 ### Build and document
 
@@ -93,6 +112,57 @@ including exact `pass`, `fail`, `not_run`, or `waived` evidence.
 `not_run` and `waived` are never reported as passed. Report unknown cost or usage
 as `null`, not zero. Do not call work complete until every mandatory criterion
 passes, or an authorized waiver says exactly what remains waived.
+
+## Status events
+
+Every run emits status events via `scripts/tars_state.py`, so progress is
+visible without reading the transcript:
+
+- At start: `python scripts/tars_state.py open --kind adw --session <session id> [--task-uid <UID>]`.
+  Capture the printed `run_id`.
+- At each stage boundary:
+  `python scripts/tars_state.py emit <run_id> working "<stage>"`.
+- Waiting on the user:
+  `python scripts/tars_state.py emit <run_id> needs-decision --key <key> "<reason>"`
+  or `python scripts/tars_state.py emit <run_id> blocked "<reason>"`.
+- At the end: `python scripts/tars_state.py emit <run_id> done "<evidence>"` or
+  `python scripts/tars_state.py emit <run_id> failed "<evidence>"`.
+- After any terminal event on a Task-linked run:
+  `python scripts/tars_state.py progress <run_id> --write`. It no-ops safely on
+  dr-fleet runs, so call it unconditionally.
+
+Status events do not change the boundaries above. A failure to emit never
+blocks the work (mirror A3-D4).
+
+## Progress band
+
+If the tool `mcp__tars-progress__progress` is available, keep the band above
+the prompt and the agents pane current. Skip silently when it is absent. Call
+it:
+
+- after stating the task contract: `title` (a few words), `preset`, `stage`
+  (the first stage), and, once worker tasks are known, `total` and `tasks`
+  (`[{ title, tier, after }]` in dispatch order, `tier` as `T1`, `T2` or `T3`,
+  `after` the numbers of the tasks a task waits for);
+- at each stage boundary: `stage`;
+- each time a worker result passes independent verification: `done`
+  (accepted so far);
+- when re-planning changes the tasks: the new `tasks` and `total`;
+- once, with the result contract: `finished: true`.
+
+Pass a task's `title` verbatim as the Agent tool `description` when
+dispatching it, and again on a repair round, so the pane matches runs to
+planned tasks.
+
+Every dispatched brief carries this line for the worker: "If
+`mcp__tars-progress__step` is among your tools, including as a deferred tool
+(load it with ToolSearch `select:mcp__tars-progress__step`), call it right
+after reading the brief with your plan's step count as `total` and `done: 0`,
+then again with `done` and a few-word `note` as each step finishes. Skip
+silently if the tool is absent."
+
+Progress reports do not change the boundaries above. A failure to report never
+blocks the work.
 
 ## Examples
 

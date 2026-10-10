@@ -33,7 +33,7 @@ file owns only the procedure.
 4. **Label.** `label_thread` with the bucket's label ID. One bucket label per
    thread (plus Drafted where step 5 applies). Never remove labels a human set.
 5. **Draft** (client-external Respond threads only, per the drafting rules in
-   `rules.md`). Read `~/VOICE.md` + the mapped client folder's `CLAUDE.md` /
+   `rules.md`). Read `~/.claude/VOICE.md` + the mapped client folder's `CLAUDE.md` /
    `MEMORY.md`, `get_thread` for full context, then `create_draft` as a reply
    on the thread. Label the thread Drafted. Skip (with a digest note) rather
    than fabricate specifics.

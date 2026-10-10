@@ -13,13 +13,13 @@ itself.
 
 This routine is read-only:
 
+- Root CLAUDE.md hard rules 1 and 3 apply in full (protected paths and the plugin data file; Git is never a transport and never mutated).
 - Do not edit PM state, dossiers, meetings, work sessions, project notes, or
   automation artifacts.
 - Do not create a prep note, weekly-review note, pulse, audit, log entry, task,
-  work session, commit, handoff, branch, pull, or push.
+  work session, or handoff.
 - Do not use `/lint --fix`, `/ingest-meeting`, `/pulse`, `/handoff`,
   `/submit-timesheets`, or an external write-capable connector.
-- Do not read `.obsidian/plugins/tars-os/data.json` directly.
 - Missing or stale data must remain visible as a gap. Do not open raw meetings to
   manufacture certainty that the dossier does not support.
 - If a read-only check cannot run, mark it **UNVERIFIED** and continue. Do not

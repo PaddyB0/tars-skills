@@ -6,7 +6,7 @@ description: Weekly PM rollup from the vault — overdue / due-this-week / in-pr
 # /review
 
 Weekly rollup computed by reading task and work-session frontmatter directly
-(never Base views — per `CLAUDE.md` hard rule 5).
+(never Base views — per `CLAUDE.md` hard rule 2).
 
 ## How to run
 

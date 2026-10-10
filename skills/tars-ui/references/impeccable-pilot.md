@@ -3,14 +3,15 @@
 ## Reviewed pins
 
 - Upstream: `pbakaus/impeccable`
-- Reviewed upstream commit: `68b1129`
-- Skill: `skill-v4.0.3`
-- CLI package: `impeccable@3.4.0`
-- CLI runtime requirement: Node.js `>=22.12.0`
+- Reviewed upstream commit: `cd12f86`
+- Skill: `skill-v4.3.1` (4.3.1)
+- CLI package: `impeccable@4.1.0`
+- CLI runtime requirement: Node.js `>=22.18.0`
+- Engine: `0.1.5`, downloaded by the skill launcher into `~/.impeccable/bin/0.1.5/` on first run and never stored in the vault
 
 The repository lock is `.obsidian/plugins/tars-os/impeccable.lock.json`. The TAR-OS package lock pins the CLI. Never substitute a floating `npx impeccable` or `@latest`.
 
-The upstream skill is not vendored in Phase 1. The `tars-ui` workflow carries the approved orchestration while the exact CLI supplies deterministic detection. Installing the upstream skill later requires a reviewed, pinned, no-hook installation.
+The upstream skill is vendored in agent source (`System/Agent Runtime/source/claude/skills/impeccable/`) and projected to `.claude/`, `.agents/` and `~/.claude/`. The `/ui-*` wrappers in source are the sanctioned aliases, and the upstream `pin` script stays forbidden. The four upstream subagents (`impeccable-*` under `.claude/agents/`) are not vendored, so the skill's `reference/degraded/` fallbacks apply. The `tars-ui` workflow carries the approved orchestration while the exact CLI supplies deterministic detection.
 
 ## Authority boundary
 
@@ -70,7 +71,7 @@ Functional text below 11px is a true finding until live inspection proves it rem
 Do not enable:
 
 - hook manifests or automatic edit/stop checks;
-- standalone pinned aliases;
+- upstream `pin` aliases (the `/ui-*` wrappers in source are the only shortcuts);
 - CI blocking;
 - Live mode;
 - automatic update checks that change the pin;

@@ -6,7 +6,7 @@ description: Create a schema-valid task note in Tasks/. Args - name, project, du
 # /task
 
 Create a task note in `Tasks/` with complete, valid frontmatter per the `task`
-fileClass (see `CLAUDE.md` § Schema contract → task).
+fileClass (see the `vault-schema` skill → task).
 
 ## Inputs (ask only for what's missing)
 
@@ -26,37 +26,16 @@ Generate a fresh UUIDv4 for every new Task. New Tasks begin with
 
 ## Frontmatter to write
 
-```yaml
----
-fileClass: task
-UID: <fresh UUIDv4>
-Status: ⚪ TO DO
-Priority: <Medium|...>
-Phase: <phase>
-Visibility: <client facing|internal>
-Project: "[[<resolved project basename>]]"
-Company: "[[<company>]]"        # if known from the project; else omit
-StartDate: <YYYY-MM-DD HH:mm>   # now, or omit
-DueDate: <YYYY-MM-DD>           # or omit the value entirely — never ""
-Estimate:                       # number of hours, or leave empty
-AutoSchedule:                   # absent/empty until explicit TARS opt-in
-ScheduleMode: manual
-MinBlockMin:
-MaxBlockMin:
-SchedulingPolicy:
-Energy:
-Parent:
-BlockedBy: []
-Assignee:
-Description:
-Sessions:
-Completed_At:
-created: <YYYY-MM-DD>
-modified: <YYYY-MM-DDTHH:mm:ss-06:00>
-tags:
-  - task
----
-```
+Load `/vault-schema` for the `task` fileClass fields and enum values, and copy
+enum values from there exactly. This skill sets `fileClass` (`task`), `UID` (a
+fresh UUIDv4), `Status` (the TO DO default), `Priority`, `Phase`, `Visibility`,
+`Project` (the resolved project wikilink, quoted), `Company` (when known from
+the project, else omitted), `StartDate` (now, or omitted), `DueDate` (omitted
+rather than written as an empty string), `Estimate`, `AutoSchedule` (absent
+until explicit opt-in), `ScheduleMode` (`manual`), `MinBlockMin`, `MaxBlockMin`,
+`SchedulingPolicy`, `Energy`, `Parent`, `BlockedBy` (an empty list),
+`Assignee`, `Description`, `Sessions`, `Completed_At`, `created`, `modified`,
+and `tags` (`task`).
 
 ## Body scaffold
 

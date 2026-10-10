@@ -12,7 +12,6 @@ from pathlib import Path
 SKILLS_ROOT = Path(__file__).parents[2]
 LINTERS = (
     SKILLS_ROOT / "lint" / "lint.py",
-    SKILLS_ROOT / "vault-lint" / "lint.py",
 )
 
 
@@ -42,7 +41,7 @@ def run_linter(linter: Path, vault: Path) -> subprocess.CompletedProcess[str]:
 
 
 class EnumCoverageTests(unittest.TestCase):
-    def test_both_lints_cover_repeat_and_calendar_provider(self):
+    def test_cover_repeat_and_calendar_provider(self):
         for index, path in enumerate(LINTERS):
             with self.subTest(linter=path.parent.name):
                 lint = load_linter(path, f"milestone_contract_lint_{index}")
@@ -57,7 +56,7 @@ class EnumCoverageTests(unittest.TestCase):
 
 
 class MilestoneRelationshipTests(unittest.TestCase):
-    def test_valid_project_milestone_task_relationship_passes_both_lints(self):
+    def test_valid_project_milestone_task_relationship_passes(self):
         with tempfile.TemporaryDirectory() as tmp:
             vault = Path(tmp)
             write_note(
@@ -95,7 +94,7 @@ class MilestoneRelationshipTests(unittest.TestCase):
                     self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
                     self.assertNotIn("ERRORS", result.stdout)
 
-    def test_invalid_tags_typed_links_ownership_and_prefix_fail_both_lints(self):
+    def test_invalid_tags_typed_links_ownership_and_prefix_fail(self):
         with tempfile.TemporaryDirectory() as tmp:
             vault = Path(tmp)
             for project in ("Alpha", "Beta"):

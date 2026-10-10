@@ -12,18 +12,17 @@ repairs or advances work.
 
 The entire run is read-only:
 
+- Root CLAUDE.md hard rules 1 and 3 apply in full (protected paths and the plugin data file; Git is never a transport and never mutated).
 - Do not edit, create, move, rename, or delete any file.
 - Do not invoke `/lint` as a workflow because its post-run logging writes files.
   Run its deterministic checker directly, without `--fix`.
 - Do not run `/ingest-meeting`, `/pulse`, `/handoff`, `/safe-push`,
   `/submit-timesheets`, or any other mutating workflow.
-- Do not run `git pull`, `git fetch`, `git commit`, `git push`, branch operations,
-  package installation, deployment, or dependency upgrades.
+- Do not run package installation, deployment, or dependency upgrades.
 - Do not call connectors or APIs that create, update, submit, send, label, or
   delete anything. A read-only remote-tip query performed by the repository's
   health verifier is allowed.
-- Do not read `.obsidian/plugins/tars-os/data.json` directly; it contains a real
-  API key. Only use the credential-safe health verifier below.
+- Only use the credential-safe health verifier below for plugin health.
 - Treat a non-zero check exit as evidence to report, never permission to fix it.
 - If access, network, or a command is unavailable, mark that evidence
   **UNVERIFIED** and continue with the remaining read-only checks. Do not seek

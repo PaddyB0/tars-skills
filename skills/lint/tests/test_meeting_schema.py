@@ -76,6 +76,20 @@ class MeetingSchemaContractTests(unittest.TestCase):
         self.assertEqual(unquoted["GongDurationMin"], 47)
         self.assertEqual(quoted["GongDurationMin"], "47")
 
+    def test_zoom_meeting_uuid_accepts_zoom_instance_shapes(self):
+        for uuid in ("4n29iCfRQp63vuHHWA0gRA==", "jcrkra4nTQK/4xEhK+U4qg==",
+                     "38DCDB7C-74B1-442F-BE85-390DF0BB96CC"):
+            self.assertEqual(
+                lint.phase2_scalar_errors("meeting", {"ZoomMeetingUUID": uuid}), [], uuid
+            )
+
+    def test_zoom_meeting_uuid_rejects_meeting_number_and_lists(self):
+        for bad in (82317898892, "82317898892", ["4n29iCfRQp63vuHHWA0gRA=="]):
+            self.assertIn(
+                "ZoomMeetingUUID must be a Zoom recording instance UUID",
+                lint.phase2_scalar_errors("meeting", {"ZoomMeetingUUID": bad}),
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

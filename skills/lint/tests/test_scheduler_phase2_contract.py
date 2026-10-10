@@ -10,22 +10,24 @@ from pathlib import Path
 
 
 LINTER = Path(__file__).parents[1] / "lint.py"
-# These integration tests read the live TARS FileClass and template contracts,
-# so they only run from a TARS checkout. Outside one, skip instead of failing
-# collection for the rest of the suite.
-ROOT = next(
-    (
-        parent
-        for parent in Path(__file__).resolve().parents
-        if (parent / "System" / "Agent Runtime" / "runtime-manifest.json").is_file()
-    ),
-    None,
-)
-if ROOT is None:
-    raise unittest.SkipTest(
-        "TARS checkout not found; scheduler contract tests need the live "
-        "FileClass and template sources"
-    )
+
+
+def _find_repo_root(start: Path) -> Path:
+    """Walk upward from `start` until a directory holding both CLAUDE.md and
+    Administrator/ is found. A fixed parents[N] depth breaks depending on
+    whether this test runs from the canonical source tree
+    (System/Agent Runtime/source/claude/skills/lint/tests) or its `.claude/`
+    projection (.claude/skills/lint/tests) — the two sit at different depths
+    below the repo root."""
+    for candidate in (start, *start.parents):
+        if (candidate / "CLAUDE.md").is_file() and (candidate / "Administrator").is_dir():
+            return candidate
+    # Outside a TARS checkout, skip instead of failing collection for the
+    # rest of the suite: these tests read the live FileClass and templates.
+    raise unittest.SkipTest(f"TARS checkout not found above {start}")
+
+
+ROOT = _find_repo_root(Path(__file__).resolve().parent)
 
 
 def load_linter():

@@ -1,0 +1,261 @@
+# Hand-kept annotations for the vault-schema field tables.
+# Rendered by scripts/build_vault_schema.py; its docstring is the contract.
+# One key per fileclass, in display order. Each row names one or more
+# FileClass fields. For a Select/Multi field with a valuesList, `format` is
+# only the suffix after the generated values; otherwise it is the whole cell.
+# `label` optionally overrides the default "`A` / `B`" field label.
+
+task:
+  - fields: [Status]
+    format: ''
+  - fields: [Priority]
+    format: ''
+  - fields: [Phase]
+    format: ''
+  - fields: [Visibility]
+    format: ''
+  - fields: [Project]
+    format: 'quoted wikilink → `Project: "[[Acme - PS Q2 2026]]"`'
+  - fields: [Milestone]
+    format: 'optional quoted wikilink to a milestone whose `Project` matches the task'
+  - fields: [Parent]
+    format: 'quoted wikilink (parent task)'
+  - fields: [BlockedBy]
+    format: 'list of quoted wikilinks; empty = `[]`'
+  - fields: [Meeting]
+    format: 'quoted wikilink to the source meeting note; used for meeting action items'
+  - fields: [Company, Contact]
+    format: 'quoted wikilink'
+  - fields: [Assignee]
+    format: 'quoted wikilink'
+  - fields: [Executor]
+    format: '— task routing; empty = Patrick'
+  - fields: [Workflow]
+    format: '— dr-fleet workflow queued for the machine in `Executor`; the dispatcher moves the task `⚪ TO DO` → `🔵 IN PROGRESS` → `🟣 HUMAN REVIEW`; omit when none'
+  - fields: [SyncToReclaim]
+    format: '`true` or absent; Reclaim push opt-in gate'
+  - fields: [ReclaimTaskID]
+    format: 'numeric string; Reclaim push idempotency'
+  - fields: [UID]
+    format: 'immutable UUIDv4; required for new Tasks and before `AutoSchedule: true`; legacy Tasks may omit'
+  - fields: [AutoSchedule]
+    format: '`true` or absent; explicit TARS scheduling opt-in; cannot coexist with `SyncToReclaim: true`'
+  - fields: [ScheduleMode]
+    format: '; new Tasks default to `manual`; opted-in Tasks must be `flexible`'
+  - fields: [MinBlockMin, MaxBlockMin]
+    format: 'optional positive-integer minute overrides; when both exist, minimum must not exceed maximum'
+  - fields: [SchedulingPolicy]
+    format: 'optional quoted wikilink to a `scheduling_policy`; required for `AutoSchedule: true`'
+  - fields: [Energy]
+    format: ''
+  - fields: [Repeat]
+    format: ''
+  - fields: [RepeatUntil]
+    format: '`YYYY-MM-DD`; omit if open-ended'
+  - fields: [StartDate, DueDate]
+    format: '`YYYY-MM-DD` or `YYYY-MM-DD HH:mm` — **never `""`; omit the value if unknown**'
+  - fields: [Estimate]
+    format: 'hours (number, no unit)'
+  - fields: [Description]
+    format: 'short text'
+  - fields: [Sessions]
+    format: 'back-reference (usually left empty; the WS note links up)'
+  - fields: [Completed_At]
+    format: 'auto — set only when `Status: 🟢 COMPLETE`; `⚫ CANCELED` and `⚫ DUPLICATE` are closed but not completed; you may write it directly as `YYYY-MM-DD HH:mm`'
+
+habit:
+  - fields: [UID]
+    format: 'immutable UUIDv4; required while active'
+  - fields: [Status]
+    format: ''
+  - fields: [Priority]
+    format: ''
+  - fields: [Cadence]
+    format: ''
+  - fields: [TargetCount]
+    format: 'positive integer occurrences per cadence period'
+  - fields: [DaysOfWeek]
+    format: '; required for an active weekly Habit'
+  - fields: [DurationMin]
+    format: 'positive integer minutes per occurrence'
+  - fields: [EarliestTime, PreferredTime, LatestTime]
+    format: '`HH:mm`; an active Habit requires earliest and latest, with optional preferred inside that range'
+  - fields: [SchedulingPolicy]
+    format: 'quoted wikilink to exactly one `scheduling_policy`; required while active'
+  - fields: [CatchUpPolicy]
+    format: ''
+  - fields: [CalendarVisibility]
+    format: ''
+  - fields: [StartDate, EndDate]
+    format: 'optional inclusive `YYYY-MM-DD`; start must not follow end'
+  - fields: [Description]
+    format: 'short text'
+
+scheduling_policy:
+  - fields: [UID]
+    format: 'immutable UUIDv4'
+  - fields: [Timezone]
+    format: 'IANA timezone, e.g. `America/Edmonton`'
+  - fields: [MondayWindow, TuesdayWindow, WednesdayWindow, ThursdayWindow, FridayWindow, SaturdayWindow, SundayWindow]
+    label: '`MondayWindow` … `SundayWindow`'
+    format: 'optional `HH:mm-HH:mm`; at least one work window is required and start must precede end'
+  - fields: [MeetingWindow]
+    format: 'optional `HH:mm-HH:mm`'
+  - fields: [NoMeetingWindows]
+    format: 'optional free scalar operating note; Phase 2 does not interpret it'
+  - fields: [DeepWorkWindow, ShallowWorkWindow]
+    format: 'optional recurring policy-local `HH:mm-HH:mm` energy preferences; each is clipped to that day''s hard work window and never expands eligibility'
+  - fields: [NormalHoursWindow]
+    format: 'optional recurring policy-local `HH:mm-HH:mm` preference; eligible minutes outside it remain feasible but rank last'
+  - fields: [DefaultTaskMinBlockMin, DefaultTaskMaxBlockMin]
+    format: 'positive integer minutes; minimum must not exceed maximum'
+  - fields: [DefaultHabitDurationMin]
+    format: 'positive integer minutes'
+  - fields: [DailyCapacityMin, WeeklyCapacityMin]
+    format: 'positive integer minutes'
+  - fields: [MeetingPrepMin, TravelBufferMin, DecompressionMin, WorkBreakMin]
+    format: 'nonnegative integer minutes'
+  - fields: [SoftFreezeHours, HardLockHours]
+    format: 'nonnegative integer hours; hard lock must not exceed soft freeze'
+  - fields: [TargetCalendar]
+    format: 'required logical target calendar name'
+  - fields: [DefaultVisibility]
+    format: ''
+  - fields: [ApplyMode]
+    format: ''
+  - fields: [Description]
+    format: 'short text'
+
+project:
+  - fields: [Status]
+    format: ''
+  - fields: [Type]
+    format: ''
+  - fields: [Company]
+    format: 'quoted wikilink'
+  - fields: [Contacts]
+    format: 'list of quoted wikilinks'
+  - fields: [ScopeCategory]
+    format: ''
+  - fields: [Scope_hrs]
+    format: 'contracted hours'
+  - fields: [HubIcon]
+    format: '; omit for deterministic fallback'
+  - fields: [HubColor]
+    format: '; omit for deterministic fallback'
+  - fields: [BonusAssignedAt, BonusLiveAt]
+    format: '`YYYY-MM-DD`; explicit earned-bonus events, omitted until earned'
+  - fields: [StartTime, EndTime]
+    format: '`YYYY-MM-DD` or `YYYY-MM-DD HH:mm`'
+  - fields: [Completed_at]
+    format: 'Formula field with no formula defined in the FileClass; nothing sets it; omit'
+  - fields: [sf.ProjectName]
+    format: 'Salesforce project name'
+  - fields: [sf.NotetoSETeam]
+    format: 'free text'
+
+milestone:
+  - fields: [Project]
+    format: 'required quoted wikilink to a project'
+  - fields: [TargetDate]
+    format: 'optional `YYYY-MM-DD`; omit when unknown'
+  - fields: [Description]
+    format: 'optional short text'
+  - fields: [Completed_At]
+    format: 'explicit completion timestamp `YYYY-MM-DD HH:mm`; omit while open'
+
+session:
+  - fields: [Task]
+    format: 'quoted wikilink to the task; optional when `Meeting` exists'
+  - fields: [Meeting]
+    format: 'quoted wikilink to the source Meeting; a session requires at least `Task` or `Meeting`'
+  - fields: [Project]
+    format: 'quoted wikilink to the project'
+  - fields: [Company]
+    format: 'quoted wikilink'
+  - fields: [ReportingBucket]
+    format: '— required when classifiable; derive from project/task identity, never `CallType`'
+  - fields: [HoursType]
+    format: ''
+  - fields: [ActivityType]
+    format: ''
+  - fields: [Audience]
+    format: ''
+  - fields: [StartTime, EndTime]
+    format: '**`YYYY-MM-DD HH:mm`** (time required)'
+  - fields: [DurationMin]
+    format: 'exact minutes = (`EndTime` − `StartTime`)'
+  - fields: [ReclaimEventID]
+    format: 'usually empty'
+
+meeting:
+  - fields: [Company]
+    format: 'quoted wikilink'
+  - fields: [Contacts]
+    format: 'list of quoted wikilinks; empty = `[]`'
+  - fields: [Project]
+    format: 'quoted wikilink'
+  - fields: [ReportingBucket]
+    format: '— required when classifiable; derive from `Project`, never `CallType`'
+  - fields: [CallType]
+    format: ''
+  - fields: [CallUrl]
+    format: 'Gong/meeting URL'
+  - fields: [GongId]
+    format: 'Gong call id (quote if numeric)'
+  - fields: [GongTitle]
+    format: 'cleaned Gong notification subject; optional legacy records may omit it. Inferred Calendar/Gong joins require either exact normalized title evidence or the constrained `<client> <> Datarails | <descriptor>` ↔ `<client> -- Datarails - <descriptor>` separator equivalence. External structured titles must resolve exactly one reciprocal CRM Company/Project by company name or explicit `GongTitleAliases`; any attendee that resolves in CRM must agree'
+  - fields: [GongReceivedAt]
+    format: '`YYYY-MM-DD HH:mm`; Gmail receipt time for correlation only, never the meeting start'
+  - fields: [GongDurationMin]
+    format: 'positive Gong-reported call duration; authoritative for linked live-call Meeting/Work Session duration, anchored at Calendar `StartTime`'
+  - fields: [ZoomMeetingUUID]
+    format: 'quoted Zoom recording instance UUID; written by `/ingest-meeting` only when it authored the body from that Zoom transcript (raw transcript in gitignored `Transcripts/<meeting basename>.md`). Absent = body is Gong-sourced or hand-written'
+  - fields: [CalendarProvider]
+    format: '; present only when explicitly linked/promoted from a calendar event'
+  - fields: [CalendarEventID]
+    format: 'provider occurrence ID; paired with `CalendarProvider` as the durable calendar join key'
+  - fields: [Passcode]
+    format: 'usually empty'
+  - fields: [StartTime, EndTime]
+    format: '`YYYY-MM-DD HH:mm`'
+  - fields: [IngestedAt]
+    format: '`YYYY-MM-DD HH:mm` — set **after** `/ingest-meeting` propagation completes, never before. **Omit until then** (empty = not ingested; never `""`)'
+
+crm_company:
+  - fields: [Type]
+    format: ''
+  - fields: [Industry, SubIndustry]
+    format: 'list of strings'
+  - fields: [Timezone]
+    format: ''
+  - fields: [BillingAddress]
+    format: 'free text'
+  - fields: [sf.Url]
+    format: 'Salesforce account URL'
+  - fields: [Project]
+    format: 'quoted wikilink'
+  - fields: [ContactName]
+    format: 'list of quoted wikilinks to contacts'
+  - fields: [GongTitleAliases]
+    format: 'optional explicit client-title aliases used only by the constrained Gong/Calendar separator-equivalence join; exact normalized token equality is required'
+  - fields: [DossierUpdated]
+    format: '`YYYY-MM-DD` — last propagation touch to the dossier body. Omit until first ingest'
+
+crm_contacts:
+  - fields: [contact.recordtype]
+    format: ''
+  - fields: [contact.title]
+    format: 'job title'
+  - fields: [contact.email]
+    format: 'email'
+  - fields: [Company]
+    format: 'quoted wikilink'
+  - fields: [Type]
+    format: '; contact notes always use `Contact`'
+  - fields: [Timezone]
+    format: ''
+  - fields: [GongTitleAliases]
+    format: 'inherited from `crm_company` (not in `excludes`); see the `crm_company` row'
+  - fields: [DossierUpdated]
+    format: 'inherited from `crm_company` (not in `excludes`); see the `crm_company` row'

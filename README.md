@@ -23,8 +23,8 @@ skills.
 - `prep` — produce a read-only client call brief.
 - `pulse` — generate the portfolio risk pulse.
 - `review` — produce the weekly PM rollup.
-- `lint` — run unified schema, propagation, and graph validation.
-- `vault-lint` — validate notes against live fileClass contracts.
+- `lint` — run unified schema, propagation, graph, and agent-surface validation.
+- `vault-schema` — load the frontmatter contract before a write no writer skill owns.
 - `os-audit` — inspect drift, freshness, routing, organization, and context health.
 
 ### Engineering discipline
@@ -34,6 +34,8 @@ skills.
 - `code-review` — review diffs across contract, spec, and behavior.
 - `grill` — resolve consequential design decisions through a structured interview.
 - `safe-push` — publish TARS changes through its exact-SHA gate.
+- `prompt-writer` — recraft a request into a ready-to-dispatch agent prompt.
+- `chrome-devtools-axi` — drive a signed-in Chrome profile from the command line.
 
 ### Product and engagement design
 
@@ -43,6 +45,8 @@ skills.
   specification, with a deterministic workbook inventory pass.
 - `excel-design` — the canonical `.xlsx` visual contract (three styles, a
   client brand override) and its deterministic workbook linter.
+- `tenant-audit` — read-only design audit of one Datarails tenant against the
+  FinanceOS anti-pattern checklist.
 
 ## Included commands
 
@@ -62,6 +66,12 @@ skills.
 - `morning-brief` — dawn brief ranking the day's work, client risk, meeting
   backlog, and overnight exceptions.
 
+### Unattended writing routine
+
+- `night-ingest` — overnight `/ingest-meeting` over the ingestion backlog, with a
+  per-meeting stop on exceptions and a lint pass. It writes only the pages that
+  skill owns and reports in chat.
+
 ### Recursive learning
 
 - `ingest` — take one raw external source into the knowledge layer.
@@ -73,10 +83,13 @@ skills.
 
 - `triage` — classify and label inbox threads, draft external replies, digest in
   chat. Every draft is a proposal.
+- `recap` — write a client-facing recap of each recent external call and leave
+  it as an email draft. Never sends.
 
 Each routine states its own read-only or mutating boundary in its opening
 section. Where a routine can write or call an external system, the write is
-approval-gated and named as such.
+approval-gated and named as such. `night-ingest` is the one exception: its
+vault writes run unattended by owner decision, inside the boundary it states.
 
 ## Repository boundary
 

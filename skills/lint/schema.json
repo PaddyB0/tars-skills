@@ -1,0 +1,919 @@
+{
+  "fileclasses": {
+    "crm_company": {
+      "extends": null,
+      "fields": {
+        "BillingAddress": {
+          "inherited": false,
+          "type": "Input",
+          "values": null
+        },
+        "ContactName": {
+          "inherited": false,
+          "type": "MultiFile",
+          "values": null
+        },
+        "DossierUpdated": {
+          "inherited": false,
+          "type": "Date",
+          "values": null
+        },
+        "GongTitleAliases": {
+          "inherited": false,
+          "type": "Multi",
+          "values": null
+        },
+        "Industry": {
+          "inherited": false,
+          "type": "Multi",
+          "values": null
+        },
+        "Project": {
+          "inherited": false,
+          "type": "File",
+          "values": null
+        },
+        "SubIndustry": {
+          "inherited": false,
+          "type": "Multi",
+          "values": null
+        },
+        "Timezone": {
+          "inherited": false,
+          "type": "Select",
+          "values": [
+            "EST",
+            "PST",
+            "MST",
+            "CDT"
+          ]
+        },
+        "Type": {
+          "inherited": false,
+          "type": "Select",
+          "values": [
+            "Company",
+            "Contact"
+          ]
+        },
+        "sf.Url": {
+          "inherited": false,
+          "type": "Input",
+          "values": null
+        }
+      }
+    },
+    "crm_contacts": {
+      "extends": "crm_company",
+      "fields": {
+        "Company": {
+          "inherited": false,
+          "type": "File",
+          "values": null
+        },
+        "DossierUpdated": {
+          "inherited": true,
+          "type": "Date",
+          "values": null
+        },
+        "GongTitleAliases": {
+          "inherited": true,
+          "type": "Multi",
+          "values": null
+        },
+        "Timezone": {
+          "inherited": true,
+          "type": "Select",
+          "values": [
+            "EST",
+            "PST",
+            "MST",
+            "CDT"
+          ]
+        },
+        "Type": {
+          "inherited": true,
+          "type": "Select",
+          "values": [
+            "Company",
+            "Contact"
+          ]
+        },
+        "contact.email": {
+          "inherited": false,
+          "type": "Input",
+          "values": null
+        },
+        "contact.recordtype": {
+          "inherited": false,
+          "type": "Select",
+          "values": [
+            "Decision Maker",
+            "Champion",
+            "Contact"
+          ]
+        },
+        "contact.title": {
+          "inherited": false,
+          "type": "Input",
+          "values": null
+        }
+      }
+    },
+    "habit": {
+      "extends": null,
+      "fields": {
+        "Cadence": {
+          "inherited": false,
+          "type": "Select",
+          "values": [
+            "daily",
+            "weekly"
+          ]
+        },
+        "CalendarVisibility": {
+          "inherited": false,
+          "type": "Select",
+          "values": [
+            "default",
+            "private"
+          ]
+        },
+        "CatchUpPolicy": {
+          "inherited": false,
+          "type": "Select",
+          "values": [
+            "skip",
+            "rollover-once",
+            "catch-up-capped"
+          ]
+        },
+        "DaysOfWeek": {
+          "inherited": false,
+          "type": "Multi",
+          "values": [
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday"
+          ]
+        },
+        "Description": {
+          "inherited": false,
+          "type": "Input",
+          "values": null
+        },
+        "DurationMin": {
+          "inherited": false,
+          "type": "Number",
+          "values": null
+        },
+        "EarliestTime": {
+          "inherited": false,
+          "type": "Input",
+          "values": null
+        },
+        "EndDate": {
+          "inherited": false,
+          "type": "Date",
+          "values": null
+        },
+        "LatestTime": {
+          "inherited": false,
+          "type": "Input",
+          "values": null
+        },
+        "PreferredTime": {
+          "inherited": false,
+          "type": "Input",
+          "values": null
+        },
+        "Priority": {
+          "inherited": false,
+          "type": "Select",
+          "values": [
+            "Low",
+            "Medium",
+            "High",
+            "Critical"
+          ]
+        },
+        "SchedulingPolicy": {
+          "inherited": false,
+          "type": "File",
+          "values": null
+        },
+        "StartDate": {
+          "inherited": false,
+          "type": "Date",
+          "values": null
+        },
+        "Status": {
+          "inherited": false,
+          "type": "Select",
+          "values": [
+            "active",
+            "paused",
+            "retired"
+          ]
+        },
+        "TargetCount": {
+          "inherited": false,
+          "type": "Number",
+          "values": null
+        },
+        "UID": {
+          "inherited": false,
+          "type": "Input",
+          "values": null
+        }
+      }
+    },
+    "meeting": {
+      "extends": null,
+      "fields": {
+        "CalendarEventID": {
+          "inherited": false,
+          "type": "Input",
+          "values": null
+        },
+        "CalendarProvider": {
+          "inherited": false,
+          "type": "Select",
+          "values": [
+            "reclaim",
+            "google",
+            "outlook"
+          ]
+        },
+        "CallType": {
+          "inherited": false,
+          "type": "Select",
+          "values": [
+            "internal call",
+            "external call"
+          ]
+        },
+        "CallUrl": {
+          "inherited": false,
+          "type": "Input",
+          "values": null
+        },
+        "Company": {
+          "inherited": false,
+          "type": "File",
+          "values": null
+        },
+        "Contacts": {
+          "inherited": false,
+          "type": "MultiFile",
+          "values": null
+        },
+        "EndTime": {
+          "inherited": false,
+          "type": "DateTime",
+          "values": null
+        },
+        "GongDurationMin": {
+          "inherited": false,
+          "type": "Number",
+          "values": null
+        },
+        "GongId": {
+          "inherited": false,
+          "type": "Input",
+          "values": null
+        },
+        "GongReceivedAt": {
+          "inherited": false,
+          "type": "DateTime",
+          "values": null
+        },
+        "GongTitle": {
+          "inherited": false,
+          "type": "Input",
+          "values": null
+        },
+        "IngestedAt": {
+          "inherited": false,
+          "type": "DateTime",
+          "values": null
+        },
+        "Passcode": {
+          "inherited": false,
+          "type": "Input",
+          "values": null
+        },
+        "Project": {
+          "inherited": false,
+          "type": "File",
+          "values": null
+        },
+        "ReportingBucket": {
+          "inherited": false,
+          "type": "Select",
+          "values": [
+            "Client Delivery",
+            "Internal Operations",
+            "TARS / OS"
+          ]
+        },
+        "StartTime": {
+          "inherited": false,
+          "type": "DateTime",
+          "values": null
+        },
+        "ZoomMeetingUUID": {
+          "inherited": false,
+          "type": "Input",
+          "values": null
+        }
+      }
+    },
+    "milestone": {
+      "extends": null,
+      "fields": {
+        "Completed_At": {
+          "inherited": false,
+          "type": "DateTime",
+          "values": null
+        },
+        "Description": {
+          "inherited": false,
+          "type": "Input",
+          "values": null
+        },
+        "Project": {
+          "inherited": false,
+          "type": "File",
+          "values": null
+        },
+        "TargetDate": {
+          "inherited": false,
+          "type": "Date",
+          "values": null
+        }
+      }
+    },
+    "project": {
+      "extends": null,
+      "fields": {
+        "BonusAssignedAt": {
+          "inherited": false,
+          "type": "Date",
+          "values": null
+        },
+        "BonusLiveAt": {
+          "inherited": false,
+          "type": "Date",
+          "values": null
+        },
+        "Company": {
+          "inherited": false,
+          "type": "File",
+          "values": null
+        },
+        "Completed_at": {
+          "inherited": false,
+          "type": "Formula",
+          "values": null
+        },
+        "Contacts": {
+          "inherited": false,
+          "type": "MultiFile",
+          "values": null
+        },
+        "EndTime": {
+          "inherited": false,
+          "type": "DateTime",
+          "values": null
+        },
+        "HubColor": {
+          "inherited": false,
+          "type": "Select",
+          "values": [
+            "blue",
+            "green",
+            "purple",
+            "cyan",
+            "orange",
+            "pink",
+            "yellow",
+            "red"
+          ]
+        },
+        "HubIcon": {
+          "inherited": false,
+          "type": "Select",
+          "values": [
+            "rocket",
+            "folder-kanban",
+            "briefcase-business",
+            "chart-no-axes-column",
+            "building-2",
+            "target",
+            "sparkles",
+            "wrench"
+          ]
+        },
+        "ScopeCategory": {
+          "inherited": false,
+          "type": "Select",
+          "values": [
+            "40+ hrs",
+            "26-39 hrs",
+            "11-25 hrs",
+            "0-10 hrs"
+          ]
+        },
+        "Scope_hrs": {
+          "inherited": false,
+          "type": "Number",
+          "values": null
+        },
+        "StartTime": {
+          "inherited": false,
+          "type": "DateTime",
+          "values": null
+        },
+        "Status": {
+          "inherited": false,
+          "type": "Select",
+          "values": [
+            "🟠 backlog",
+            "⚪ planned",
+            "🔵 active",
+            "🔴 at risk",
+            "🟢 complete"
+          ]
+        },
+        "Type": {
+          "inherited": false,
+          "type": "Select",
+          "values": [
+            "Premium Success",
+            "CS Hours",
+            "AI Transformation Services"
+          ]
+        },
+        "sf.NotetoSETeam": {
+          "inherited": false,
+          "type": "Input",
+          "values": null
+        },
+        "sf.ProjectName": {
+          "inherited": false,
+          "type": "Input",
+          "values": null
+        }
+      }
+    },
+    "scheduling_policy": {
+      "extends": null,
+      "fields": {
+        "ApplyMode": {
+          "inherited": false,
+          "type": "Select",
+          "values": [
+            "assisted",
+            "automatic"
+          ]
+        },
+        "DailyCapacityMin": {
+          "inherited": false,
+          "type": "Number",
+          "values": null
+        },
+        "DecompressionMin": {
+          "inherited": false,
+          "type": "Number",
+          "values": null
+        },
+        "DeepWorkWindow": {
+          "inherited": false,
+          "type": "Input",
+          "values": null
+        },
+        "DefaultHabitDurationMin": {
+          "inherited": false,
+          "type": "Number",
+          "values": null
+        },
+        "DefaultTaskMaxBlockMin": {
+          "inherited": false,
+          "type": "Number",
+          "values": null
+        },
+        "DefaultTaskMinBlockMin": {
+          "inherited": false,
+          "type": "Number",
+          "values": null
+        },
+        "DefaultVisibility": {
+          "inherited": false,
+          "type": "Select",
+          "values": [
+            "default",
+            "private"
+          ]
+        },
+        "Description": {
+          "inherited": false,
+          "type": "Input",
+          "values": null
+        },
+        "FridayWindow": {
+          "inherited": false,
+          "type": "Input",
+          "values": null
+        },
+        "HardLockHours": {
+          "inherited": false,
+          "type": "Number",
+          "values": null
+        },
+        "MeetingPrepMin": {
+          "inherited": false,
+          "type": "Number",
+          "values": null
+        },
+        "MeetingWindow": {
+          "inherited": false,
+          "type": "Input",
+          "values": null
+        },
+        "MondayWindow": {
+          "inherited": false,
+          "type": "Input",
+          "values": null
+        },
+        "NoMeetingWindows": {
+          "inherited": false,
+          "type": "Input",
+          "values": null
+        },
+        "NormalHoursWindow": {
+          "inherited": false,
+          "type": "Input",
+          "values": null
+        },
+        "SaturdayWindow": {
+          "inherited": false,
+          "type": "Input",
+          "values": null
+        },
+        "ShallowWorkWindow": {
+          "inherited": false,
+          "type": "Input",
+          "values": null
+        },
+        "SoftFreezeHours": {
+          "inherited": false,
+          "type": "Number",
+          "values": null
+        },
+        "SundayWindow": {
+          "inherited": false,
+          "type": "Input",
+          "values": null
+        },
+        "TargetCalendar": {
+          "inherited": false,
+          "type": "Input",
+          "values": null
+        },
+        "ThursdayWindow": {
+          "inherited": false,
+          "type": "Input",
+          "values": null
+        },
+        "Timezone": {
+          "inherited": false,
+          "type": "Input",
+          "values": null
+        },
+        "TravelBufferMin": {
+          "inherited": false,
+          "type": "Number",
+          "values": null
+        },
+        "TuesdayWindow": {
+          "inherited": false,
+          "type": "Input",
+          "values": null
+        },
+        "UID": {
+          "inherited": false,
+          "type": "Input",
+          "values": null
+        },
+        "WednesdayWindow": {
+          "inherited": false,
+          "type": "Input",
+          "values": null
+        },
+        "WeeklyCapacityMin": {
+          "inherited": false,
+          "type": "Number",
+          "values": null
+        },
+        "WorkBreakMin": {
+          "inherited": false,
+          "type": "Number",
+          "values": null
+        }
+      }
+    },
+    "session": {
+      "extends": null,
+      "fields": {
+        "ActivityType": {
+          "inherited": false,
+          "type": "Select",
+          "values": [
+            "Meeting",
+            "Build",
+            "Admin"
+          ]
+        },
+        "Audience": {
+          "inherited": false,
+          "type": "Select",
+          "values": [
+            "External",
+            "Internal"
+          ]
+        },
+        "Company": {
+          "inherited": false,
+          "type": "File",
+          "values": null
+        },
+        "DurationMin": {
+          "inherited": false,
+          "type": "Number",
+          "values": null
+        },
+        "EndTime": {
+          "inherited": false,
+          "type": "DateTime",
+          "values": null
+        },
+        "HoursType": {
+          "inherited": false,
+          "type": "Select",
+          "values": [
+            "Billable",
+            "Non-billable"
+          ]
+        },
+        "Meeting": {
+          "inherited": false,
+          "type": "File",
+          "values": null
+        },
+        "Project": {
+          "inherited": false,
+          "type": "File",
+          "values": null
+        },
+        "ReclaimEventID": {
+          "inherited": false,
+          "type": "Input",
+          "values": null
+        },
+        "ReportingBucket": {
+          "inherited": false,
+          "type": "Select",
+          "values": [
+            "Client Delivery",
+            "Internal Operations",
+            "TARS / OS"
+          ]
+        },
+        "StartTime": {
+          "inherited": false,
+          "type": "DateTime",
+          "values": null
+        },
+        "Task": {
+          "inherited": false,
+          "type": "File",
+          "values": null
+        }
+      }
+    },
+    "task": {
+      "extends": null,
+      "fields": {
+        "Assignee": {
+          "inherited": false,
+          "type": "File",
+          "values": null
+        },
+        "AutoSchedule": {
+          "inherited": false,
+          "type": "Boolean",
+          "values": null
+        },
+        "BlockedBy": {
+          "inherited": false,
+          "type": "MultiFile",
+          "values": null
+        },
+        "Company": {
+          "inherited": false,
+          "type": "File",
+          "values": null
+        },
+        "Completed_At": {
+          "inherited": false,
+          "type": "Formula",
+          "values": null
+        },
+        "Contact": {
+          "inherited": false,
+          "type": "File",
+          "values": null
+        },
+        "Description": {
+          "inherited": false,
+          "type": "Input",
+          "values": null
+        },
+        "DueDate": {
+          "inherited": false,
+          "type": "DateTime",
+          "values": null
+        },
+        "Energy": {
+          "inherited": false,
+          "type": "Select",
+          "values": [
+            "deep",
+            "shallow",
+            "any"
+          ]
+        },
+        "Estimate": {
+          "inherited": false,
+          "type": "Number",
+          "values": null
+        },
+        "Executor": {
+          "inherited": false,
+          "type": "Select",
+          "values": [
+            "Patrick",
+            "Code-Mac",
+            "Code-Win",
+            "Code-Work",
+            "Cowork"
+          ]
+        },
+        "MaxBlockMin": {
+          "inherited": false,
+          "type": "Number",
+          "values": null
+        },
+        "Meeting": {
+          "inherited": false,
+          "type": "File",
+          "values": null
+        },
+        "Milestone": {
+          "inherited": false,
+          "type": "File",
+          "values": null
+        },
+        "MinBlockMin": {
+          "inherited": false,
+          "type": "Number",
+          "values": null
+        },
+        "Parent": {
+          "inherited": false,
+          "type": "File",
+          "values": null
+        },
+        "Phase": {
+          "inherited": false,
+          "type": "Select",
+          "values": [
+            "Kick-Off",
+            "Change Planning",
+            "Workspace Configuration",
+            "Model Builds",
+            "Dashboard Design",
+            "Training + Enablement"
+          ]
+        },
+        "Priority": {
+          "inherited": false,
+          "type": "Select",
+          "values": [
+            "Low",
+            "Medium",
+            "High",
+            "Critical"
+          ]
+        },
+        "Project": {
+          "inherited": false,
+          "type": "File",
+          "values": null
+        },
+        "ReclaimTaskID": {
+          "inherited": false,
+          "type": "Input",
+          "values": null
+        },
+        "Repeat": {
+          "inherited": false,
+          "type": "Select",
+          "values": [
+            "daily",
+            "weekly",
+            "monthly",
+            "yearly"
+          ]
+        },
+        "RepeatUntil": {
+          "inherited": false,
+          "type": "Date",
+          "values": null
+        },
+        "ScheduleMode": {
+          "inherited": false,
+          "type": "Select",
+          "values": [
+            "flexible",
+            "fixed",
+            "manual"
+          ]
+        },
+        "SchedulingPolicy": {
+          "inherited": false,
+          "type": "File",
+          "values": null
+        },
+        "Sessions": {
+          "inherited": false,
+          "type": "File",
+          "values": null
+        },
+        "StartDate": {
+          "inherited": false,
+          "type": "DateTime",
+          "values": null
+        },
+        "Status": {
+          "inherited": false,
+          "type": "Select",
+          "values": [
+            "⚫ BACKLOG",
+            "⚪ TO DO",
+            "🔵 IN PROGRESS",
+            "🟣 HUMAN REVIEW",
+            "🟠 REWORK",
+            "🟢 MERGING",
+            "🟢 COMPLETE",
+            "⚫ CANCELED",
+            "⚫ DUPLICATE"
+          ]
+        },
+        "SyncToReclaim": {
+          "inherited": false,
+          "type": "Boolean",
+          "values": null
+        },
+        "UID": {
+          "inherited": false,
+          "type": "Input",
+          "values": null
+        },
+        "Visibility": {
+          "inherited": false,
+          "type": "Select",
+          "values": [
+            "client facing",
+            "internal"
+          ]
+        },
+        "Workflow": {
+          "inherited": false,
+          "type": "Select",
+          "values": [
+            "dr-recon",
+            "dr-lut-diagnose"
+          ]
+        }
+      }
+    }
+  },
+  "schemaVersion": "1",
+  "source": "Administrator/FileClasses"
+}

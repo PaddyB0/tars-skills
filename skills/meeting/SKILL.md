@@ -5,8 +5,8 @@ description: Create a meeting note in Meetings/, link its company/project/contac
 
 # /meeting
 
-Create a meeting note in `Meetings/` per the `meeting` fileClass (see `CLAUDE.md`
-§ Schema contract → meeting).
+Create a meeting note in `Meetings/` per the `meeting` fileClass (see the
+`vault-schema` skill → meeting).
 
 ## Inputs
 
@@ -24,36 +24,19 @@ Create a meeting note in `Meetings/` per the `meeting` fileClass (see `CLAUDE.md
   calendar link or promotion supplies a provider occurrence identity. Supported
   providers: `reclaim` · `google` · `outlook`.
 
-Derive `ReportingBucket` from the resolved project identity: a project with a real
-client `Company` → `Client Delivery`; `Datarails Ongoing` → `Internal Operations`;
-a TARS / Unified OS project → `TARS / OS`. Never derive it from `CallType`, invent
-an `Other`, or create a synthetic internal company. If the project cannot be
-classified, stop and surface the Meeting as an exception.
+Derive `ReportingBucket` from the resolved project identity per `vault-schema` →
+Conventions. If the project cannot be classified, stop and surface the Meeting as
+an exception.
 
 ## Filename & frontmatter
 
 Filename: **`<Client> - <Kind> (YYYY-MM-DD)`** (e.g. `Acme - Call (2026-06-24)`).
 
-```yaml
----
-fileClass: meeting
-tags:
-  - meeting
-Company: "[[<company>]]"
-Contacts:
-  - "[[<contact>]]"      # or  Contacts: []  if none
-Project: "[[<project>]]"
-ReportingBucket: <Client Delivery|Internal Operations|TARS / OS>
-CallType: <external call|internal call>
-CallUrl:                 # Gong/meeting URL if any
-GongId:                  # quote if numeric: "1234567890"
-CalendarProvider:        # optional; must be paired with CalendarEventID
-CalendarEventID:         # provider occurrence ID, not a recurring-series ID
-Passcode:
-StartTime: <YYYY-MM-DD HH:mm>
-EndTime: <YYYY-MM-DD HH:mm>
----
-```
+Load `/vault-schema` for the `meeting` fileClass fields and enum values before
+writing. This skill sets `fileClass: meeting` and these fields: `tags`, `Company`,
+`Contacts`, `Project`, `ReportingBucket`, `CallType`, `CallUrl`, `GongId` (quote
+when numeric), `CalendarProvider` and `CalendarEventID` (paired; the occurrence
+id, not the series id), `Passcode`, `StartTime`, `EndTime`.
 
 ## Body
 
@@ -102,6 +85,29 @@ The helper writes `ActivityType: Meeting` plus derived `Audience`; linked
 `Build`/`Admin` sessions remain prep/follow-up, not the Meeting's one live-call
 ledger session. Re-running this step must report `REUSED`,
 not create another live-call session.
+
+### Live-call ledger contract
+
+Exactly one `ActivityType: Meeting` ledger row may represent a Meeting source. For
+a calendar-linked Gong Meeting, Calendar supplies the `StartTime` anchor and
+positive `GongDurationMin` is authoritative for live-call duration:
+`EndTime = StartTime + GongDurationMin`, and the Work Session mirrors those
+timestamps and exact duration. Unlinked Gong receipt metadata never invents timing.
+An existing Gong-owned Session may be surgically reconciled only when its identity
+is valid and its timing matches either the prior Calendar window or the target Gong
+window; other disagreements remain visible exceptions. Reporting reads Work
+Sessions.
+
+Gong and Calendar join fields (`GongTitle`, `GongTitleAliases`, `GongReceivedAt`,
+`GongDurationMin`, `CalendarProvider` + `CalendarEventID`) are defined in
+`vault-schema` → meeting and crm_company.
+
+### Internal-only Gong route
+
+For Gong receipts whose Calendar attendees are exclusively `@datarails.com`,
+the sole allowed internal ledger route is `Project: [[Datarails Ongoing]]`, no
+synthetic Company, `ReportingBucket: Internal Operations`, `CallType: internal
+call`, and one `Internal` / `Non-billable` Meeting Work Session.
 
 ## Hand off to ingest ("file, then ingest")
 

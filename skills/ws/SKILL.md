@@ -6,7 +6,7 @@ description: Log a work session in Work Sessions/ against an existing task and o
 # /ws
 
 Log a work session in `Work Sessions/` against an existing task or Meeting, per the
-`session` fileClass (see `CLAUDE.md` § Schema contract → session). A session requires
+`session` fileClass (see the `vault-schema` skill → session). A session requires
 at least one of `Task` or `Meeting`.
 
 ## Inputs
@@ -44,26 +44,11 @@ Filename: **`<Client> - WS YYYY-MM-DD HHmm`** — `HHmm` with no colon in the
 filename (e.g. `Acme - WS 2026-06-24 1656`). `<Client>` = the company short
 name (match the task/project prefix). If that exact name exists, append ` (2)`.
 
-```yaml
----
-fileClass: session
-Task: "[[<task>]]"
-Meeting: "[[<meeting>]]"         # optional for task work; required for live calls
-Project: "[[<project>]]"
-Company: "[[<company>]]"
-ReportingBucket: <Client Delivery|Internal Operations|TARS / OS>
-HoursType: <Billable|Non-billable>
-ActivityType: <Meeting|Build|Admin>
-Audience: <External|Internal>
-StartTime: <YYYY-MM-DD HH:mm>
-EndTime: <YYYY-MM-DD HH:mm>
-DurationMin: <int minutes>
-ReclaimEventID:
-tags:
-  - session
-modified: <YYYY-MM-DDTHH:mm:ss-06:00>
----
-```
+Load `/vault-schema` for the `session` fileClass fields and enum values before
+writing. This skill sets `fileClass: session` and these fields: `Task`, `Meeting`
+(optional for task work, required for live calls), `Project`, `Company`,
+`ReportingBucket`, `HoursType`, `ActivityType`, `Audience`, `StartTime`,
+`EndTime`, `DurationMin`, `ReclaimEventID`, `tags`, `modified`.
 
 `Meeting` belongs in frontmatter. Do not create new body-only `Related call` links;
 existing ones remain compatibility data until the physical migration.
@@ -78,7 +63,9 @@ fix), APPEND one line to the client dossier's `## Timeline`
 ## Rules
 
 - `StartTime`/`EndTime` keep the `HH:mm` colon in frontmatter; the filename uses `HHmm`.
-- `DurationMin` is an integer count of minutes, no unit.
+- `DurationMin` = whole minutes between session `StartTime` and `EndTime`, an
+  integer with no unit.
+- Duration reporting and billable rounding: see [[TARS Unified OS - Schema]] §4.1.
 - Prep/follow-up may link both `Task` and `Meeting`, but uses `Build` or `Admin`.
   The one `ActivityType: Meeting` live-call ledger row is owned by the Meeting
   helper and is idempotent by Meeting/Gong source identity.

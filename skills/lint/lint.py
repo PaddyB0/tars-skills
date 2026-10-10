@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """TARS unified linter — three passes: schema (S1–S4) · propagation (P1–P8) · graph (G1–G7).
 
-Supersedes /vault-lint (schema only) and Cowork /lint (knowledge only). Spec:
+Spec:
 Notes/TARS Unified OS - Schema.md § 6. Schema constants are re-derived from
 Administrator/FileClasses/*.md — that folder is the source of truth.
 
@@ -26,66 +26,24 @@ except Exception:
     pass
 
 # ---------- schema contract (source of truth: Administrator/FileClasses) ----------
-ENUMS = {
-    "task": {
-        "Status": {"⚫ BACKLOG", "⚪ TO DO", "🔵 IN PROGRESS",
-                   "🟣 HUMAN REVIEW", "🟠 REWORK", "🟢 MERGING",
-                   "🟢 COMPLETE", "⚫ CANCELED", "⚫ DUPLICATE"},
-        "Priority": {"Low", "Medium", "High", "Critical"},
-        "Phase": {"Kick-Off", "Change Planning", "Workspace Configuration",
-                  "Model Builds", "Dashboard Design", "Training + Enablement"},
-        "Visibility": {"client facing", "internal"},
-        "Executor": {"Patrick", "Code-Mac", "Code-Win", "Code-Work", "Cowork"},
-        "Workflow": {"dr-recon", "dr-lut-diagnose"},
-        "Repeat": {"daily", "weekly", "monthly", "yearly"},
-        "ScheduleMode": {"flexible", "fixed", "manual"},
-        "Energy": {"deep", "shallow", "any"},
-    },
-    "habit": {
-        "Status": {"active", "paused", "retired"},
-        "Priority": {"Low", "Medium", "High", "Critical"},
-        "Cadence": {"daily", "weekly"},
-        "DaysOfWeek": {
-            "monday", "tuesday", "wednesday", "thursday",
-            "friday", "saturday", "sunday",
-        },
-        "CatchUpPolicy": {"skip", "rollover-once", "catch-up-capped"},
-        "CalendarVisibility": {"default", "private"},
-    },
-    "scheduling_policy": {
-        "DefaultVisibility": {"default", "private"},
-        "ApplyMode": {"assisted", "automatic"},
-    },
-    "project": {
-        "Status": {"🟠 backlog", "⚪ planned", "🔵 active", "🔴 at risk", "🟢 complete"},
-        "Type": {"Premium Success", "CS Hours"},
-        "ScopeCategory": {"40+ hrs", "26-39 hrs", "11-25 hrs", "0-10 hrs"},
-        "HubIcon": {"rocket", "folder-kanban", "briefcase-business",
-                    "chart-no-axes-column", "building-2", "target", "sparkles", "wrench"},
-        "HubColor": {"blue", "green", "purple", "cyan",
-                     "orange", "pink", "yellow", "red"},
-    },
-    "session": {
-        "HoursType": {"Billable", "Non-billable"},
-        "ActivityType": {"Meeting", "Build", "Admin"},
-        "Audience": {"External", "Internal"},
-        "ReportingBucket": {"Client Delivery", "Internal Operations", "TARS / OS"},
-    },
-    "meeting": {
-        "CallType": {"internal call", "external call"},
-        "ReportingBucket": {"Client Delivery", "Internal Operations", "TARS / OS"},
-        "CalendarProvider": {"reclaim", "google", "outlook"},
-    },
-    "crm_company": {
-        "Type": {"Company", "Contact"},
-        "Timezone": {"EST", "PST", "MST", "CDT"},
-    },
-    "crm_contacts": {
-        "contact.recordtype": {"Decision Maker", "Champion", "Contact"},
-        "Type": {"Company", "Contact"},
-        "Timezone": {"EST", "PST", "MST", "CDT"},
-    },
-}
+# ENUMS is derived from schema.json, generated from the FileClasses by
+# scripts/build_vault_schema.py. A missing or invalid schema.json fails the import.
+SCHEMA_JSON = os.path.join(os.path.dirname(os.path.abspath(__file__)), "schema.json")
+
+
+def _load_enums(path):
+    """ENUMS from schema.json: every Select/Multi field with a valuesList."""
+    with open(path, encoding="utf-8") as fh:
+        schema = json.load(fh)
+    enums = {}
+    for fileclass, spec in schema["fileclasses"].items():
+        for name, field in spec["fields"].items():
+            if field["type"] in ("Select", "Multi") and field["values"]:
+                enums.setdefault(fileclass, {})[name] = set(field["values"])
+    return enums
+
+
+ENUMS = _load_enums(SCHEMA_JSON)
 FILECLASS_TAG = {
     "task": "task",
     "habit": "habit",
@@ -146,11 +104,14 @@ TIME_RE = re.compile(r"^(?:[01]\d|2[0-3]):[0-5]\d$")
 GONG_DATETIME_RE = re.compile(
     r"^\d{4}-\d{2}-\d{2} (?:[01]\d|2[0-3]):[0-5]\d$"
 )
+# A Zoom recording instance UUID: base64 of 16 bytes, or the GUID form. Never the
+# numeric meeting number, which repeats across every instance of a recurring call.
+ZOOM_UUID_RE = re.compile(
+    r"^(?:[A-Za-z0-9+/]{22}==|[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12})$",
+    re.I,
+)
 WINDOW_RE = re.compile(
     r"^((?:[01]\d|2[0-3]):[0-5]\d)-((?:[01]\d|2[0-3]):[0-5]\d)$"
-)
-OBSIDIAN_CONFLICT_COPY_FILENAME_RE = re.compile(
-    r"^[^/\\\r\n]+ \(Conflicted copy [^/\\\r\n]+ \d{12}\)\.[^/\\\r\n]+$"
 )
 POLICY_WINDOW_FIELDS = (
     "MondayWindow", "TuesdayWindow", "WednesdayWindow", "ThursdayWindow",
@@ -190,13 +151,6 @@ P5_NON_DELIVERY_SUBJECT_PREFIXES = (
 def p5_subject_is_delivery(subject):
     """Return False for explicitly named OS maintenance/propagation commits."""
     return not subject.startswith(P5_NON_DELIVERY_SUBJECT_PREFIXES)
-
-
-def is_obsidian_conflict_copy_filename(name):
-    """Return whether *name* is an official Obsidian conflict-copy filename."""
-    return isinstance(name, str) and bool(
-        OBSIDIAN_CONFLICT_COPY_FILENAME_RE.fullmatch(name)
-    )
 
 
 def parse_frontmatter(text):
@@ -485,8 +439,110 @@ def phase2_scalar_errors(fc, fm):
             "GongTitle", "GongReceivedAt", "GongDurationMin"
         )) and not (isinstance(gong_id, str) and gong_id.strip()):
             errors.append("Gong metadata requires GongId")
+        zoom_uuid = fm.get("ZoomMeetingUUID")
+        if nonempty(zoom_uuid) and not (
+            isinstance(zoom_uuid, str) and ZOOM_UUID_RE.fullmatch(zoom_uuid.strip())
+        ):
+            errors.append("ZoomMeetingUUID must be a Zoom recording instance UUID")
 
     return errors
+
+
+AGENT_SURFACE_TIMEOUT_S = 30
+
+
+def run_agent_surface_pass(vault_root):
+    """Run the agent-surface lint (AS1-AS7, scripts/agent_surface_lint.py) as
+    this linter's fourth pass.
+
+    Every finding it reports becomes one ERROR here so a broken settings file
+    or an oversized CLAUDE.md fails the same `/lint` everyone already runs.
+    Returns (errors, warnings, summary_line) — errors/warnings are lists of
+    (path, message) tuples in this script's existing finding format; --fix
+    never touches this pass.
+    """
+    script = os.path.join(vault_root, "scripts", "agent_surface_lint.py")
+    rel_script = os.path.relpath(script, vault_root).replace("\\", "/")
+    if not os.path.isfile(script):
+        return (
+            [],
+            [(rel_script, "agent-surface lint not installed")],
+            "Pass 4 — agent surface (AS1–AS7): not installed",
+        )
+
+    try:
+        proc = subprocess.run(
+            [sys.executable, script, "--root", vault_root, "--json"],
+            capture_output=True, text=True, encoding="utf-8", errors="replace",
+            timeout=AGENT_SURFACE_TIMEOUT_S,
+        )
+    except subprocess.TimeoutExpired:
+        return (
+            [(rel_script, f"agent-surface lint timed out after "
+                          f"{AGENT_SURFACE_TIMEOUT_S}s")],
+            [],
+            "Pass 4 — agent surface (AS1–AS7): ERROR (timeout)",
+        )
+    except OSError as e:
+        return (
+            [(rel_script, f"agent-surface lint could not start: {e}")],
+            [],
+            "Pass 4 — agent surface (AS1–AS7): ERROR (could not start)",
+        )
+
+    def stderr_tail(text, n=10):
+        lines = text.strip().splitlines()
+        return "\n".join(lines[-n:])
+
+    if proc.returncode not in (0, 1):
+        return (
+            [(rel_script, f"agent-surface lint exited {proc.returncode}: "
+                          f"{stderr_tail(proc.stderr)}")],
+            [],
+            f"Pass 4 — agent surface (AS1–AS7): ERROR (exit {proc.returncode})",
+        )
+
+    try:
+        data = json.loads(proc.stdout)
+    except json.JSONDecodeError as e:
+        return (
+            [(rel_script, f"agent-surface lint emitted invalid JSON: {e} "
+                          f"— stderr: {stderr_tail(proc.stderr)}")],
+            [],
+            "Pass 4 — agent surface (AS1–AS7): ERROR (invalid JSON)",
+        )
+
+    findings_raw = data.get("findings", []) if isinstance(data, dict) else None
+    words_raw = data.get("words", {}) if isinstance(data, dict) else None
+    shape_ok = (
+        isinstance(data, dict)
+        and isinstance(findings_raw, list)
+        and all(isinstance(f, dict) for f in findings_raw)
+        and isinstance(words_raw, dict)
+    )
+    if not shape_ok:
+        return (
+            [(rel_script, "agent-surface lint emitted unexpected JSON shape "
+                          f"— stderr: {stderr_tail(proc.stderr)}")],
+            [],
+            "Pass 4 — agent surface (AS1–AS7): ERROR (unexpected JSON shape)",
+        )
+
+    as_errors = []
+    for f in data.get("findings", []):
+        path = f.get("path", rel_script)
+        line = f.get("line")
+        loc = f"{path}:{line}" if line is not None else path
+        as_errors.append((loc, f"{f.get('code')}: {f.get('message')}"))
+
+    words = data.get("words", {}) or {}
+    total = words.get("total", "?")
+    ceiling = words.get("ceiling", "?")
+    status = data.get("status", "?")
+    summary = (f"Pass 4 — agent surface (AS1–AS7): {len(as_errors)} finding(s), "
+               f"CLAUDE.md always-loaded word total: {total} (ceiling {ceiling}) "
+               f"[{status}]")
+    return as_errors, [], summary
 
 
 def main():
@@ -518,30 +574,6 @@ def main():
     errors, warnings = [], []
     n_notes = 0
     fixed = 0
-
-    # Obsidian conflict copies can be any file type and can live outside mapped
-    # note folders. Inspect regular filenames across the vault, but never enter
-    # Git internals or traverse machine-local symlinks.
-    for root, dirnames, filenames in os.walk(
-        ".", topdown=True, followlinks=False
-    ):
-        dirnames[:] = [
-            dirname
-            for dirname in dirnames
-            if dirname != ".git"
-            and not os.path.islink(os.path.join(root, dirname))
-        ]
-        for name in filenames:
-            path = os.path.join(root, name)
-            if os.path.islink(path) or not os.path.isfile(path):
-                continue
-            if is_obsidian_conflict_copy_filename(name):
-                rel = os.path.relpath(path, ".").replace("\\", "/")
-                errors.append((
-                    rel,
-                    "Obsidian conflict-copy filename; resolve manually "
-                    "(lint never auto-fixes conflict copies)",
-                ))
 
     company_by_client = {}
     project_by_client = {}
@@ -1028,8 +1060,15 @@ def main():
                            f"machine label {label!r} is not a valid Executor value "
                            f"{sorted(valid)} — /catchup task routing will silently match nothing"))
 
+    # ---- agent surface pass (AS1-AS7) ----
+    as_errors, as_warnings, as_summary = run_agent_surface_pass(os.getcwd())
+    errors.extend(as_errors)
+    warnings.extend(as_warnings)
+
     # ---- report ----
-    print(f"TARS unified lint — {n_notes} notes · schema + propagation + graph · today={today}\n")
+    print(f"TARS unified lint — {n_notes} notes · schema + propagation + graph + "
+          f"agent surface · today={today}\n")
+    print(as_summary)
     if args.fix and fixed:
         print(f"Applied {fixed} mechanical fix(es).\n")
     if not errors and not warnings:
